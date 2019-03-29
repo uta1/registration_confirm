@@ -4,10 +4,9 @@ import pika
 import time
 import json
 
-conn_params = [pika.URLParameters('amqp://localhost')]#pika.ConnectionParameters('localhost', 80)
+conn_params = [pika.URLParameters('amqp://localhost')]
 connection = pika.BlockingConnection(conn_params)
 channel = connection.channel()
-
 channel.queue_declare(queue='reg-queue')
 
 dic = {
