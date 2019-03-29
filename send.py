@@ -9,8 +9,10 @@ connection = pika.BlockingConnection(conn_params)
 channel = connection.channel()
 channel.queue_declare(queue='reg-queue')
 
+username = "geymer_98"
 dic = {
-    "username": "uta1",
+    "username": username,
+    "email": username + "@mail.ru",
     "password": "pa"
 }
 
