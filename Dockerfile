@@ -5,6 +5,8 @@ bash ~/miniconda.sh -bfp /usr/local/miniconda
 ENV PATH /usr/local/miniconda/bin:$PATH
 
 RUN conda install python=3.6
+RUN conda install -c anaconda postgresql 
+RUN conda install psycopg2
 RUN conda config --add channels conda-forge
 
 RUN wget https://www.rabbitmq.com/releases/erlang/erlang-18.2-1.el6.x86_64.rpm
@@ -12,6 +14,8 @@ RUN yum -y install erlang-18.2-1.el6.x86_64.rpm
 RUN wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.9/rabbitmq-server-3.6.9-1.el7.noarch.rpm
 RUN yum -y install rabbitmq-server-3.6.9-1.el7.noarch.rpm
 RUN yum clean all
+
+
 
 ADD . /pr
 WORKDIR /pr
