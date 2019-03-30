@@ -4,19 +4,23 @@ import pika
 import time
 import json
 
-conn_params = [pika.URLParameters('amqp://localhost')]
-connection = pika.BlockingConnection(conn_params)
-channel = connection.channel()
-channel.queue_declare(queue='reg-queue')
+from web_app.models import User
+import pika
+import time
+import json
 
-dic = {
-    "username": "uta1",
-    "password": "pa"
-}
+def sendEmail(User user)
+	conn_params = [pika.URLParameters('amqp://localhost')]
+	connection = pika.BlockingConnection(conn_params)
+	channel = connection.channel()
+	channel.queue_declare(queue='reg-queue')
 
-channel.basic_publish(exchange='',
+	data = {'username': user.username, 'email': user.email, 'datetime': user.date_of_reg}
+	channel.basic_publish(exchange='',
         routing_key='reg-queue',
-        body=json.dumps(dic))
-print(json.dumps(dic))
+        body=json.dumps(data))
+	connection.close()
 
-connection.close()
+	print(json.dumps(dic))
+
+	connection.close()
