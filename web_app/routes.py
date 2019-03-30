@@ -5,7 +5,7 @@ from web_app.models import User
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
-from email_notification_sevice import send.sendEmail
+from email_notification_sevice.send import sendEmail
 
 @app.route('/')
 @app.route('/index')
@@ -53,7 +53,7 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, 
         	email=form.email.data, 
-        	isActive=false)
+        	isActive=False)
         
         db.session.add(user)
         db.session.commit()
