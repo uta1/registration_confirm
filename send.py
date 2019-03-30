@@ -3,6 +3,7 @@
 import pika
 import time
 import json
+import datetime
 
 conn_params = [pika.URLParameters('amqp://localhost')]
 connection = pika.BlockingConnection(conn_params)
@@ -13,7 +14,8 @@ username = "geymer_98"
 dic = {
     "username": username,
     "email": username + "@mail.ru",
-    "password": "pa"
+    "password": "pa",
+    "datetime": str(datetime.datetime.utcnow())
 }
 
 channel.basic_publish(exchange='',
