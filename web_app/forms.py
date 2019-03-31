@@ -24,3 +24,13 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+            
+
+class ConfirmationForm(FlaskForm):
+    password = StringField('Password', validators=[DataRequired()])
+    password_retry = StringField('Retry password', validators=[DataRequired()])
+    submit = SubmitField('Register')
+
+    def validate_password(self, username):
+        return username.password == username.password_retry
+

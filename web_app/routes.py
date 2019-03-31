@@ -4,6 +4,8 @@ from web_app.forms import LoginForm, RegistrationForm
 from web_app.models import User
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
+from datetime import datetime
+from dateutil import parser
 
 from email_notification_sevice.send import sendEmail
 
@@ -39,6 +41,50 @@ def login():
             next_page = url_for('index')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
+
+def deserialize(data):
+    serializer = URLSafeTimedSerializer("code".encode('utf8'))
+    data = serializer.load(
+        data
+    )
+    data['datetime'] = parser.parse(data['datetime'])
+    return data
+
+def timeIsok(data):
+	return (datetime.utcnow() - data['datetime']).days < 2
+
+@app.route('/confirm/<code>', methods=['GET', 'POST'])
+def confirm(code):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+        
+    data = deserialize(code)
+   	if !timeIsOk(data):
+   		user = User.query.filter_by(username='username').first()
+   		if user.date_of_reg.date() == datetime.utcnow().date():
+	   		user.date_of_reg = datetime.utcnow()
+	   		db.session.commit()
+	   		sendEmail(user)
+	   		flash('We will send you new hash!')
+   			return redirect(url_for('index'))
+		else:
+			flash('Wrong date!')
+			return redirect(url_for('index'))
+			
+    form = ConfirmationForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=data['username']).first()
+        if user.date_of_reg.date() == datetime.utcnow().date():
+			user.set_password(form.password.data)
+			user.isActive = True
+			db.session.commit()
+        	flash('Congratulations, you are registered!')
+        	return redirect(url_for('login'))
+    	else:
+			flash('Wrong date!')
+			return redirect(url_for('index'))
+    return render_template('register.html', title='Register', form=form)
+
 
 @app.route('/logout')
 def logout():
