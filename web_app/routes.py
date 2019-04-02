@@ -1,11 +1,13 @@
 from flask import render_template, flash, redirect, url_for, request
 from web_app import app, db
-from web_app.forms import LoginForm, RegistrationForm
+from web_app.forms import LoginForm, RegistrationForm, ConfirmationForm
 from web_app.models import User
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from datetime import datetime
 from dateutil import parser
+from itsdangerous import URLSafeTimedSerializer
+
 
 from email_notification_sevice.send import sendEmail
 
@@ -44,52 +46,66 @@ def login():
 
 def deserialize(data):
     serializer = URLSafeTimedSerializer("code".encode('utf8'))
-    data = serializer.load(
+    data = serializer.loads(
         data
     )
-    data['datetime'] = parser.parse(data['datetime'])
+    print('pop')
+    data[2] = parser.parse(data[2])
+    print('lopop')
     return data
 
-def timeIsok(data):
-	return (datetime.utcnow() - data['datetime']).days < 2
+def timeIsOk(data):
+    print(data)
+    return (datetime.utcnow() - data[2]).days < 2
 
 @app.route('/confirm/<code>', methods=['GET', 'POST'])
 def confirm(code):
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-        
+    print('aaa')
     data = deserialize(code)
-   	if !timeIsOk(data):
-   		user = User.query.filter_by(username='username').first()
-   		if user.date_of_reg.date() == datetime.utcnow().date():
-	   		user.date_of_reg = datetime.utcnow()
-	   		db.session.commit()
-	   		sendEmail(user)
-	   		flash('We will send you new hash!')
-   			return redirect(url_for('index'))
-		else:
-			flash('Wrong date!')
-			return redirect(url_for('index'))
-			
+    print('bbbb')
+    if not timeIsOk(data):
+        user = User.query.filter_by(username=data[0]).first()
+        if user.date_of_reg.date() == parser.parse(data[2].date()):
+            user.date_of_reg = datetime.utcnow()
+            db.session.commit()
+            sendEmail(user)
+            flash('We will send you new hash!')
+            return redirect(url_for('index'))
+        else:
+            flash('Wrong date!')
+            return redirect(url_for('index'))
+    print('kek')	
     form = ConfirmationForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=data['username']).first()
-        if user.date_of_reg.date() == datetime.utcnow().date():
-			user.set_password(form.password.data)
-			user.isActive = True
-			db.session.commit()
-        	flash('Congratulations, you are registered!')
-        	return redirect(url_for('login'))
-    	else:
-			flash('Wrong date!')
-			return redirect(url_for('index'))
-    return render_template('register.html', title='Register', form=form)
+        user = User.query.filter_by(username=data[0]).first()
+        print(user.date_of_reg.date())
+        print(datetime.utcnow().date)
+        print(data[2].date())
+        if user.date_of_reg.date() == data[2].date():
+            user.set_password(form.password.data)
+            user.isActive = True
+            db.session.commit()
+            flash('Congratulations, you are registered!')
+            return redirect(url_for('login'))
+        else:
+            flash('Wrong date!')
+            return redirect(url_for('index'))
+    return render_template('confirm.html', title='Confirm', form=form)
 
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
+    
+@app.route('/del')
+def del1():
+    User.query.delete()
+    db.session.commit()
+    return redirect(url_for('index'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

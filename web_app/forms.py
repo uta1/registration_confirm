@@ -32,5 +32,5 @@ class ConfirmationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_password(self, username):
-        return username.password == username.password_retry
+        return self.password == self.password_retry
 

@@ -20,10 +20,11 @@ channel.queue_declare(queue='reg-queue')
 print("Waiting for messages. To exit press CTRL+C")
 
 def valid(data: dict) -> bool:
-    return len(data) == 4 and ('username' in data) and ('password' in data) and ('email' in data) and ('datetime' in data)
+    return len(data) == 3 and ('username' in data) and ('email' in data) and ('datetime' in data)
 
 def serialize_str(data) -> str:
     serializer = URLSafeTimedSerializer("code".encode('utf8'))
+    
     user_id = serializer.dumps(
         data
     )
@@ -59,12 +60,17 @@ def prepare_registration(username: str, email: str, password_hash: str) -> bool:
             return False
 '''
 
-def send_validation_code(username: str, email: str, password_hash: str) -> bool:
+def make_email_body(serial: str) -> str:
+    print("!")
+    return 'Go here: http://127.0.0.1:5000/confirm/' + serial
+
+def send_validation_code(username: str, email: str, datetime: str) -> bool:
     try:
         smtpObj = smtplib.SMTP('smtp.bk.ru', 587)
         smtpObj.starttls()
         smtpObj.login('backend.mipt@bk.ru','lolkek123')
-        smtpObj.sendmail("backend.mipt@bk.ru", email, serialize_str([username, email, password_hash]) + " link  localhost:8080/confirm/" + serialize_str([username, email, password_hash]))
+        
+        smtpObj.sendmail("backend.mipt@bk.ru", email, make_email_body(serialize_str([username, email, datetime])))
         smtpObj.quit()
         return True
     except Exception:
@@ -78,6 +84,7 @@ def callback(ch, method, properties, body):
         print("user sent invalid request: invalid dict object")
         return
     if not valid(data):
+        print(data)
         print("user sent invalid request: key set of dict object is not {'username', 'password'}")
         return
         
@@ -87,7 +94,7 @@ def callback(ch, method, properties, body):
     #    print("registration of user {} failed on preparing".format(data['username']))
     #    return
     
-    if not send_validation_code(data['username'], data['email'], data['password']):
+    if not send_validation_code(data['username'], data['email'], data['datetime']):
         print("registration of user {} failed on sending validation code".format(data['username']))
         return 
 
@@ -102,3 +109,4 @@ except KeyboardInterrupt:
 except Exception:
     channel.stop_consuming()
     traceback.print_exc(file=sys.stdout)
+

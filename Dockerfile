@@ -9,6 +9,10 @@ RUN conda install -c anaconda postgresql
 RUN conda install psycopg2
 RUN conda install -c anaconda flask
 RUN conda config --add channels conda-forge
+RUN conda install -c conda-forge flask-sqlalchemy 
+RUN conda install -c conda-forge flask-migrate 
+RUN conda install -c conda-forge flask-login
+RUN conda install -c conda-forge flask-wtf
 
 RUN wget https://www.rabbitmq.com/releases/erlang/erlang-18.2-1.el6.x86_64.rpm
 RUN yum -y install erlang-18.2-1.el6.x86_64.rpm
@@ -25,3 +29,4 @@ RUN conda install $(cat email_notification_sevice/requirements.txt)
 
 EXPOSE 80
 CMD rabbitmq-server
+
