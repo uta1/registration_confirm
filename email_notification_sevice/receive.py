@@ -8,12 +8,7 @@ import datetime, time
 import psycopg2
 from itsdangerous import URLSafeTimedSerializer
 
-conn = psycopg2.connect(dbname='registration_confirm', user='postgres', 
-                        password='passpsql', host='localhost')
-cursor = conn.cursor()
-
-conn_params = pika.URLParameters('amqp://localhost')
-connection = pika.BlockingConnection(conn_params)
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 channel = connection.channel()
 channel.queue_declare(queue='reg-queue')
 
@@ -62,7 +57,7 @@ def prepare_registration(username: str, email: str, password_hash: str) -> bool:
 
 def make_email_body(serial: str) -> str:
     print("!")
-    return 'Go here: http://127.0.0.1:5000/confirm/' + serial
+    return 'Go here: http://127.0.0.1:5680/confirm/' + serial
 
 def send_validation_code(username: str, email: str, datetime: str) -> bool:
     try:

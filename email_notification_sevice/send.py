@@ -10,7 +10,7 @@ import time
 import json
 
 def sendEmail(user: User):
-	conn_params = [pika.URLParameters('amqp://localhost')]
+	conn_params = [pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))]
 	connection = pika.BlockingConnection(conn_params)
 	channel = connection.channel()
 	channel.queue_declare(queue='reg-queue')

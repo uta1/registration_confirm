@@ -1,0 +1,26 @@
+version: '2.2'
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports: 
+     - "5680:5672"  
+  consumer1:
+    build: 
+      context: .
+      dockerfile: consumerDockerfile
+    volumes:
+     - .:/code
+    restart: always
+    depends_on: 
+     - rabbitmq
+  app_producer:
+    ports:
+     - "5000:5000"
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on: 
+     - rabbitmq
+    volumes:
+     - .:/code
