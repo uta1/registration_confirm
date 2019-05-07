@@ -28,6 +28,7 @@ WORKDIR /code
 RUN conda install $(cat email_notification_sevice/requirements.txt)
 
 #EXPOSE 80
+EXPOSE 5000
 
 ENTRYPOINT ["bash"]
 ENV FLASK_APP=first_app.py
@@ -37,6 +38,6 @@ ENTRYPOINT ["bash"]
 ENV LC_ALL=en_IE.utf8
 #CMD ["export LC_ALL=en_IE.utf8"]
 
-ENTRYPOINT ["flask"]
-CMD ["run"]
+CMD ["./run.sh"]
+#CMD ["run"]
 
