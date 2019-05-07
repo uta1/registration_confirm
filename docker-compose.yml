@@ -1,0 +1,27 @@
+version: '2.2'
+services:
+  consumer1:
+    build: 
+      context: .
+      dockerfile: consumerDockerfile
+    volumes:
+     - .:/code
+    restart: always
+    depends_on: 
+     - rabbit
+  rabbit:
+    image: "rabbitmq"
+    ports: 
+     - "5672:5672"
+  app_producer:
+    ports:
+     - "5000:5000"
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+   
+    volumes:
+     - .:/code
+
+  
